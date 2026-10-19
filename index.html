@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spotify artist card</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app">
+  <label class="upload">
+    <span id="uploadText">Choose your Spotify history file</span>
+    <input id="file" type="file" accept=".zip,.json" multiple>
+  </label>
+  <p class="note">Upload the .zip from Spotify’s extended streaming history, or its Streaming_History_Audio .json files. Your data stays in your browser.</p>
+  <p class="error" id="error" hidden></p>
+
+  <div class="controls" id="controls" hidden>
+    <select id="artist" aria-label="Artist"></select>
+    <select id="year" aria-label="Period"></select>
+  </div>
+  <div class="card" id="card" hidden></div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
