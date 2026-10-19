@@ -152,3 +152,42 @@ $("file").addEventListener("change", async (e) => {
 });
 $("artist").addEventListener("change", (e) => { artist = e.target.value; render(); });
 $("year").addEventListener("change", (e) => { year = e.target.value; artist = ""; render(); });
+
+// --- themes ---
+const THEMES = [
+  { id: "blue", name: "Blue", color: "#378add" },
+  { id: "green", name: "Green", color: "#639922" },
+  { id: "gold", name: "Gold", color: "#d4a017" },
+  { id: "mono", name: "Monochrome", color: "#888780" },
+  { id: "red", name: "Red", color: "#e24b4a" },
+  { id: "purple", name: "Purple", color: "#7f77dd" },
+  { id: "rosegold", name: "Rosegold", color: "#d98a94" },
+];
+const THEME_KEY = "neo-cards-theme";
+const dialog = $("themeDialog");
+
+function currentTheme() {
+  return document.documentElement.dataset.theme || "blue";
+}
+
+function renderThemes() {
+  $("swatches").innerHTML = THEMES.map((t) =>
+    `<button type="button" class="swatch" data-theme-id="${t.id}" aria-pressed="${t.id === currentTheme()}">` +
+    `<i style="background:${t.color}"></i>${t.name}</button>`).join("");
+}
+
+function applyTheme(id) {
+  document.documentElement.dataset.theme = id;
+  try { localStorage.setItem(THEME_KEY, id); } catch (e) {}
+  renderThemes();
+}
+
+$("themeBtn").addEventListener("click", () => { renderThemes(); dialog.showModal(); });
+$("themeClose").addEventListener("click", () => dialog.close());
+dialog.addEventListener("click", (e) => { if (e.target === dialog) dialog.close(); });
+$("swatches").addEventListener("click", (e) => {
+  const btn = e.target.closest("[data-theme-id]");
+  if (btn) applyTheme(btn.dataset.themeId);
+});
+
+if (!THEMES.some((t) => t.id === currentTheme())) document.documentElement.dataset.theme = "blue";
