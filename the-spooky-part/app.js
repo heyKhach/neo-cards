@@ -162,6 +162,13 @@ const THEMES = [
   { id: "red", name: "Red", color: "#e24b4a" },
   { id: "purple", name: "Purple", color: "#7f77dd" },
   { id: "rosegold", name: "Rosegold", color: "#d98a94" },
+  { id: "cyberpunk", name: "Cyberpunk", color: "linear-gradient(135deg, #0d0221 50%, #00f0ff 50%)" },
+  { id: "terminal", name: "Terminal", color: "linear-gradient(135deg, #020a02 50%, #00ff41 50%)" },
+  { id: "dracula", name: "Dracula", color: "linear-gradient(135deg, #282a36 50%, #bd93f9 50%)" },
+  { id: "nord", name: "Nord", color: "linear-gradient(135deg, #2e3440 50%, #88c0d0 50%)" },
+  { id: "cottagecore", name: "Cottagecore", color: "linear-gradient(135deg, #f1ede0 50%, #5e7d4f 50%)" },
+  { id: "academia", name: "Dark academia", color: "linear-gradient(135deg, #1c1713 50%, #d1a15f 50%)" },
+  { id: "vaporwave", name: "Vaporwave", color: "linear-gradient(135deg, #f3e5ff 50%, #c2258a 50%)" },
 ];
 const THEME_KEY = "neo-cards-theme";
 const dialog = $("themeDialog");
@@ -191,3 +198,55 @@ $("swatches").addEventListener("click", (e) => {
 });
 
 if (!THEMES.some((t) => t.id === currentTheme())) document.documentElement.dataset.theme = "blue";
+
+// --- fonts ---
+const SYSTEM_STACK = 'system-ui, -apple-system, "Segoe UI", sans-serif';
+const FONTS = [
+  { id: "system", name: "System", css: SYSTEM_STACK, google: null },
+  { id: "inter", name: "Inter", css: '"Inter", ' + SYSTEM_STACK, google: "Inter:wght@400;500" },
+  { id: "roboto", name: "Roboto", css: '"Roboto", ' + SYSTEM_STACK, google: "Roboto:wght@400;500" },
+  { id: "poppins", name: "Poppins", css: '"Poppins", ' + SYSTEM_STACK, google: "Poppins:wght@400;500" },
+  { id: "merriweather", name: "Merriweather", css: '"Merriweather", Georgia, serif', google: "Merriweather:wght@400;700" },
+  { id: "robotomono", name: "Roboto Mono", css: '"Roboto Mono", ui-monospace, Menlo, monospace', google: "Roboto+Mono:wght@400;500" },
+  { id: "rubik", name: "Rubik", css: '"Rubik", ' + SYSTEM_STACK, google: "Rubik:wght@400;500" },
+  { id: "sourgummy", name: "Sour Gummy", css: '"Sour Gummy", ' + SYSTEM_STACK, google: "Sour+Gummy" },
+  { id: "spacemono", name: "Space Mono", css: '"Space Mono", ui-monospace, Menlo, monospace', google: "Space+Mono:wght@400;700" },
+  { id: "craftygirls", name: "Crafty Girls", css: '"Crafty Girls", cursive, ' + SYSTEM_STACK, google: "Crafty+Girls" },
+  { id: "irishgrover", name: "Irish Grover", css: '"Irish Grover", cursive, ' + SYSTEM_STACK, google: "Irish+Grover" },
+];
+const FONT_KEY = "neo-cards-font";
+const fontDialog = $("fontDialog");
+let fontId = "system";
+
+function renderFonts() {
+  $("fonts").innerHTML = FONTS.map((f) =>
+    `<button type="button" class="swatch" data-font-id="${f.id}" aria-pressed="${f.id === fontId}">` +
+    `<span class="aa">Aa</span>${f.name}</button>`).join("");
+}
+
+function applyFont(id, save) {
+  const f = FONTS.find((x) => x.id === id) || FONTS[0];
+  fontId = f.id;
+  if (f.google && !document.getElementById("font-" + f.id)) {
+    const link = document.createElement("link");
+    link.id = "font-" + f.id;
+    link.rel = "stylesheet";
+    link.href = "https://fonts.googleapis.com/css2?family=" + f.google + "&display=swap";
+    document.head.appendChild(link);
+  }
+  document.documentElement.style.setProperty("--font", f.css);
+  if (save) { try { localStorage.setItem(FONT_KEY, f.id); } catch (e) {} }
+  renderFonts();
+}
+
+$("fontBtn").addEventListener("click", () => { renderFonts(); fontDialog.showModal(); });
+$("fontClose").addEventListener("click", () => fontDialog.close());
+fontDialog.addEventListener("click", (e) => { if (e.target === fontDialog) fontDialog.close(); });
+$("fonts").addEventListener("click", (e) => {
+  const btn = e.target.closest("[data-font-id]");
+  if (btn) applyFont(btn.dataset.fontId, true);
+});
+
+let savedFont = null;
+try { savedFont = localStorage.getItem(FONT_KEY); } catch (e) {}
+if (savedFont) applyFont(savedFont, false);
