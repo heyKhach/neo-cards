@@ -244,29 +244,32 @@ const FONT_KEY = "neo-cards-font";
 const fontDialog = $("fontDialog");
 let fontId = "system";
 
+function loadFont(f) {
+  if (!f.google || document.getElementById("font-" + f.id)) return;
+  const link = document.createElement("link");
+  link.id = "font-" + f.id;
+  link.rel = "stylesheet";
+  link.href = "https://fonts.googleapis.com/css2?family=" + f.google + "&display=swap";
+  document.head.appendChild(link);
+}
+
 function renderFonts() {
   $("fonts").innerHTML = FONTS.map((f) =>
-    `<button type="button" class="swatch" data-font-id="${f.id}" aria-pressed="${f.id === fontId}">` +
-    `<span class="aa">Aa</span>${f.name}</button>`).join("");
+    `<button type="button" class="swatch fontopt" data-font-id="${f.id}" aria-pressed="${f.id === fontId}" ` +
+    `style="font-family:${esc(f.css)}"><span class="aa">Aa</span>${f.name}</button>`).join("");
 }
 
 function applyFont(id, save) {
   const f = FONTS.find((x) => x.id === id) || FONTS[0];
   fontId = f.id;
   document.documentElement.dataset.font = f.id;
-  if (f.google && !document.getElementById("font-" + f.id)) {
-    const link = document.createElement("link");
-    link.id = "font-" + f.id;
-    link.rel = "stylesheet";
-    link.href = "https://fonts.googleapis.com/css2?family=" + f.google + "&display=swap";
-    document.head.appendChild(link);
-  }
+  loadFont(f);
   document.documentElement.style.setProperty("--font", f.css);
   if (save) { try { localStorage.setItem(FONT_KEY, f.id); } catch (e) {} }
   renderFonts();
 }
 
-$("fontBtn").addEventListener("click", () => { renderFonts(); fontDialog.showModal(); });
+$("fontBtn").addEventListener("click", () => { FONTS.forEach(loadFont); renderFonts(); fontDialog.showModal(); });
 $("fontClose").addEventListener("click", () => fontDialog.close());
 fontDialog.addEventListener("click", (e) => { if (e.target === fontDialog) fontDialog.close(); });
 $("fonts").addEventListener("click", (e) => {
