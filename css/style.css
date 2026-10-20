@@ -9,7 +9,7 @@
   }
 }
 * { box-sizing: border-box; }
-body { margin: 0; background: var(--s1); color: var(--tx);
+body { margin: 0; min-height: 100vh; background: var(--bg, var(--s1)); color: var(--tx);
        font-family: var(--font, system-ui, -apple-system, "Segoe UI", sans-serif); }
 .app { max-width: 380px; margin: 0 auto; padding: 16px; }
 .top { display: flex; align-items: center; justify-content: space-between; margin: 8px 0 16px; }
@@ -101,3 +101,74 @@ dialog::backdrop { background: rgba(0, 0, 0, .45); }
 :root[data-theme="vaporwave"] {
   --s1: #f3e5ff; --s2: #fff5fd; --tx: #3a1c5c; --tx2: #7a5aa0;
   --ac: #c2258a; --acbg: #ffd1ef; --bd: rgba(58, 28, 92, .2); --err: #a32d2d; color-scheme: light; }
+
+/* ---- popup groups and template list ---- */
+.group-title { grid-column: 1 / -1; font-size: 12px; color: var(--tx2); margin: 8px 0 0; }
+.group-title:first-child { margin-top: 0; }
+.tpl-list { display: grid; gap: 8px; }
+.tpl { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border: .5px solid var(--bd);
+       border-radius: 8px; background: var(--s1); color: var(--tx); font: inherit; text-align: left; cursor: pointer; }
+.tpl[aria-pressed="true"] { border-color: var(--ac); outline: 1.5px solid var(--ac); }
+.tpl i { width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0; box-shadow: inset 0 0 0 .5px var(--bd); }
+.tpl .n { display: block; font-size: 14px; font-weight: 500; }
+.tpl .m { display: block; font-size: 12px; color: var(--tx2); }
+
+/* ---- more accent presets (follow light/dark) ---- */
+:root[data-theme="maroon"] { --ac: #7a1f2b; --acbg: #f8e3e5; }
+:root[data-theme="teal"]   { --ac: #0f6e6a; --acbg: #dff3f1; }
+:root[data-theme="pink"]   { --ac: #be2d73; --acbg: #fde4ef; }
+:root[data-theme="velvet"] { --ac: #6b1f4b; --acbg: #efdbe8; }
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="maroon"] { --ac: #e08a94; --acbg: #5a1219; }
+  :root[data-theme="teal"]   { --ac: #4fc3bd; --acbg: #0a4a47; }
+  :root[data-theme="pink"]   { --ac: #f48fb8; --acbg: #6b1a40; }
+  :root[data-theme="velvet"] { --ac: #cf86b4; --acbg: #4a1238; }
+}
+
+/* ---- more full palettes (fixed in light and dark mode) ---- */
+:root[data-theme="bloodmoon"] {
+  --s1: #0b0204; --s2: #1a0509; --tx: #f3dede; --tx2: #b58a8a;
+  --ac: #ff4d5e; --acbg: #5c0a14; --bd: rgba(255, 77, 94, .28); --err: #ff8a8a; color-scheme: dark;
+  --bg: radial-gradient(120% 60% at 50% 0%, #3a0510 0%, #0b0204 70%); }
+:root[data-theme="pearlescent"] {
+  --s1: #f4f0f8; --s2: #fdfcff; --tx: #35314a; --tx2: #75709a;
+  --ac: #5a62c4; --acbg: #e6e9fb; --bd: rgba(53, 49, 74, .14); --err: #a32d2d; color-scheme: light;
+  --bg: linear-gradient(135deg, #f9e6f2 0%, #e6effb 45%, #e4f5ee 100%); }
+:root[data-theme="midas"] {
+  --s1: #120d05; --s2: #1d1609; --tx: #f7ebc8; --tx2: #bda56a;
+  --ac: #ffd25a; --acbg: #5a4108; --bd: rgba(255, 210, 90, .26); --err: #ff8f6b; color-scheme: dark;
+  --bg: linear-gradient(160deg, #2a1d06 0%, #120d05 55%); }
+:root[data-theme="ivorybloom"] {
+  --s1: #f8f1e6; --s2: #fffaf2; --tx: #4a3a38; --tx2: #8a7570;
+  --ac: #b04a62; --acbg: #f7dfe3; --bd: rgba(74, 58, 56, .16); --err: #a32d2d; color-scheme: light;
+  --bg: linear-gradient(180deg, #fbf3ea, #f6e8e6); }
+:root[data-theme="retro"] {
+  --s1: #f0dfba; --s2: #fbf0d5; --tx: #3d2a1c; --tx2: #7a6046;
+  --ac: #b03d12; --acbg: #f9d3b0; --bd: rgba(61, 42, 28, .28); --err: #8c1d1d; color-scheme: light; }
+:root[data-theme="abyss"] {
+  --s1: #04121f; --s2: #0a1f33; --tx: #dff3ff; --tx2: #8bb3cc;
+  --ac: #3ec6e0; --acbg: #0b4a63; --bd: rgba(62, 198, 224, .24); --err: #ff8a8a; color-scheme: dark;
+  --bg: linear-gradient(180deg, #06243d, #04121f); }
+:root[data-theme="sunset"] {
+  --s1: #1f0f1f; --s2: #2d1528; --tx: #ffe9dc; --tx2: #d6a58f;
+  --ac: #ff9a5c; --acbg: #6b2616; --bd: rgba(255, 154, 92, .26); --err: #ff7b8a; color-scheme: dark;
+  --bg: linear-gradient(160deg, #2c0f33 0%, #4f1a38 60%, #6b2530 100%); }
+:root[data-theme="mintlatte"] {
+  --s1: #e9f1e6; --s2: #f7fbf4; --tx: #2f4a3d; --tx2: #6b8576;
+  --ac: #2f7d5f; --acbg: #d4ecdf; --bd: rgba(47, 74, 61, .18); --err: #a32d2d; color-scheme: light;
+  --bg: linear-gradient(180deg, #eef5ea, #e3efe3); }
+
+/* ---- Press Start 2P is very wide, so shrink the text ---- */
+:root[data-font="pressstart"] .value { font-size: 14px; }
+:root[data-font="pressstart"] .title,
+:root[data-font="pressstart"] .page-title { font-size: 13px; }
+:root[data-font="pressstart"] .song,
+:root[data-font="pressstart"] .bar,
+:root[data-font="pressstart"] .caption,
+:root[data-font="pressstart"] .label,
+:root[data-font="pressstart"] .badge,
+:root[data-font="pressstart"] .note,
+:root[data-font="pressstart"] .swatch,
+:root[data-font="pressstart"] .tpl .m { font-size: 9px; line-height: 1.6; }
+:root[data-font="pressstart"] .bar-label { width: 40px; }
+:root[data-font="pressstart"] .bar-value { width: 72px; }
