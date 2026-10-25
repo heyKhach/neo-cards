@@ -1,11 +1,11 @@
 :root {
   --s1: #f4f3ee; --s2: #ffffff; --tx: #1f1e1d; --tx2: #6b6a65;
-  --ac: #185fa5; --acbg: #e6f1fb; --bd: rgba(31,30,29,.12); --err: #a32d2d;
+  --ac: #3b6d11; --acbg: #eaf3de; --bd: rgba(31,30,29,.12); --err: #a32d2d;
 }
 @media (prefers-color-scheme: dark) {
   :root {
     --s1: #2a2927; --s2: #1f1e1d; --tx: #f4f3ee; --tx2: #a8a6a0;
-    --ac: #85b7eb; --acbg: #0c447c; --bd: rgba(244,243,238,.14); --err: #f09595;
+    --ac: #97c459; --acbg: #27500a; --bd: rgba(244,243,238,.14); --err: #f09595;
   }
 }
 * { box-sizing: border-box; }
@@ -63,15 +63,15 @@ dialog::backdrop { background: rgba(0, 0, 0, .45); }
 .swatch .aa { width: 22px; font-weight: 500; color: var(--ac); flex-shrink: 0; }
 .swatch i { width: 16px; height: 16px; border-radius: 50%; flex-shrink: 0; box-shadow: inset 0 0 0 .5px var(--bd); }
 
-/* ---- theme presets (blue is the default defined at the top) ---- */
-:root[data-theme="green"]    { --ac: #3b6d11; --acbg: #eaf3de; }
+/* ---- theme presets (green is the default defined at the top) ---- */
+:root[data-theme="blue"]     { --ac: #185fa5; --acbg: #e6f1fb; }
 :root[data-theme="gold"]     { --ac: #946b00; --acbg: #faeeda; }
 :root[data-theme="mono"]     { --ac: #444441; --acbg: #e8e7e2; }
 :root[data-theme="red"]      { --ac: #a32d2d; --acbg: #fcebeb; }
 :root[data-theme="purple"]   { --ac: #534ab7; --acbg: #eeedfe; }
 :root[data-theme="rosegold"] { --ac: #a0525e; --acbg: #f9e4e6; }
 @media (prefers-color-scheme: dark) {
-  :root[data-theme="green"]    { --ac: #97c459; --acbg: #27500a; }
+  :root[data-theme="blue"]     { --ac: #85b7eb; --acbg: #0c447c; }
   :root[data-theme="gold"]     { --ac: #efb94a; --acbg: #5a3e00; }
   :root[data-theme="mono"]     { --ac: #c9c7c0; --acbg: #444441; }
   :root[data-theme="red"]      { --ac: #f09595; --acbg: #791f1f; }
