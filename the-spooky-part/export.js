@@ -1,7 +1,21 @@
-// EXPORT (loads 5th): draws the card (and the faded watermark) onto a canvas and downloads it as a PNG.
+// EXPORT (loads 5th): draws the card (a "Neo Cards" title and the faded watermark too) onto a canvas and downloads it as a PNG.
 // Needs: $, fmt, FONTS, fontId, and `current` (the card's data, set by card.js). Provides: downloadPng()
 
 const PNG_URL = "heykhach.github.io/neo-cards";
+
+// The PNG title is always Rubik (whatever font is picked); only its colour follows the theme.
+const RUBIK = FONTS.find((f) => f.id === "rubik");
+const TITLE_FAM = RUBIK.css;
+const TITLE_H = 40; // extra height the title adds above the card
+
+// Starts loading Rubik and resolves once its stylesheet is ready (or has failed).
+function ensureRubik() {
+  loadFont(RUBIK);
+  const link = document.getElementById("font-" + RUBIK.id);
+  if (!link || link.sheet) return Promise.resolve();
+  return new Promise((res) => { link.addEventListener("load", res); link.addEventListener("error", res); });
+}
+ensureRubik(); // warm it up early so the first download isn't delayed
 
 function rr(ctx, x, y, w, h, r) {
   r = Math.max(0, Math.min(r, w / 2, h / 2));
@@ -91,7 +105,7 @@ function drawCardPng(canvas, cur, C, fam, pixel) {
   const capH = Math.round(S.cap * 1.4);
   const nBars = stats.bars.length, nSongs = stats.topSongs.length;
   const cardH = 16 + 24 + 12 + tileH + 16 + capH + 8 + nBars * pitch + 10 + capH + 4 + nSongs * songH + 16;
-  const W = CW + PAD * 2, H = PAD + cardH + FOOT;
+  const W = CW + PAD * 2, H = TITLE_H + PAD + cardH + FOOT;
 
   canvas.width = W * SCALE;
   canvas.height = H * SCALE;
@@ -100,6 +114,13 @@ function drawCardPng(canvas, cur, C, fam, pixel) {
   ctx.textBaseline = "middle";
 
   paintBackdrop(ctx, W, H, C.bg, C.s1);
+
+  // title: "Neo Cards" in Rubik, in the theme's accent colour
+  ctx.font = `500 22px ${TITLE_FAM}`;
+  ctx.fillStyle = C.ac; ctx.textAlign = "center";
+  ctx.fillText("Neo Cards", W / 2, PAD + 14);
+  ctx.textAlign = "left";
+  ctx.translate(0, TITLE_H); // everything below is drawn under the title
 
   rr(ctx, PAD, PAD, CW, cardH, 12);
   ctx.fillStyle = C.s2; ctx.fill();
@@ -186,7 +207,11 @@ async function downloadPng() {
   if (!current) return;
   const f = FONTS.find((x) => x.id === fontId) || FONTS[0];
   try {
-    await Promise.all([document.fonts.load(`400 14px ${f.css}`), document.fonts.load(`500 14px ${f.css}`)]);
+    await ensureRubik();
+    await Promise.all([
+      document.fonts.load(`400 14px ${f.css}`), document.fonts.load(`500 14px ${f.css}`),
+      document.fonts.load(`500 22px ${TITLE_FAM}`),
+    ]);
   } catch (e) { /* draw with whatever font is available */ }
   const cs = getComputedStyle(document.documentElement);
   const v = (n) => cs.getPropertyValue(n).trim();
