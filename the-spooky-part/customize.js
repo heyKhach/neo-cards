@@ -33,7 +33,7 @@ const THEMES = [
 const THEME_KEY = "neo-cards-theme";
 
 function currentTheme() {
-  return document.documentElement.dataset.theme || "blue";
+  return document.documentElement.dataset.theme || "green";
 }
 
 function renderThemes() {
@@ -57,7 +57,7 @@ $("swatches").addEventListener("click", (e) => {
   if (btn) applyTheme(btn.dataset.themeId);
 });
 
-if (!THEMES.some((t) => t.id === currentTheme())) document.documentElement.dataset.theme = "blue";
+if (!THEMES.some((t) => t.id === currentTheme())) document.documentElement.dataset.theme = "green";
 
 // --- fonts ---
 const SYSTEM_STACK = 'system-ui, -apple-system, "Segoe UI", sans-serif';
