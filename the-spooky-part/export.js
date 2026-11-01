@@ -1,5 +1,5 @@
 // EXPORT (loads 5th): draws the card (a "Neo Cards" title and the faded watermark too) onto a canvas and downloads it as a PNG.
-// Needs: $, fmt, FONTS, fontId, and `current` (the card's data, set by card.js). Provides: downloadPng()
+// Needs: $, fmt, FONTS, fontId, and getShownCard() (the card on screen, from card.js). Provides: downloadPng()
 
 const PNG_URL = "heykhach.github.io/neo-cards";
 
@@ -7,6 +7,8 @@ const PNG_URL = "heykhach.github.io/neo-cards";
 const RUBIK = FONTS.find((f) => f.id === "rubik");
 const TITLE_FAM = RUBIK.css;
 const TITLE_H = 40; // extra height the title adds above the card
+const TITLE_WEIGHT = 600; // how heavy the PNG title is (500 = medium, 600 = semi-bold, 700 = bold)
+const TRACK = 0.05; // letter spacing, in em (keep in sync with letter-spacing in style.css)
 
 // Starts loading Rubik and resolves once its stylesheet is ready (or has failed).
 function ensureRubik() {
@@ -89,9 +91,11 @@ function paintBackdrop(ctx, w, h, bg, fallback) {
   } catch (e) { /* keep the solid fallback */ }
 }
 
-// Draws the card (plus the watermark) onto a canvas, mirroring the on-screen layout.
-function drawCardPng(canvas, cur, C, fam, pixel) {
-  const { stats, year } = cur;
+// Draws a card (plus the watermark) onto a canvas, mirroring the on-screen layout.
+// `model` is the same data the on-screen card is built from: { title, badge?, tiles: [[label, value]], sections: [...] },
+// where a section is { kind: "bars", caption, rows: [[label, number]] } or { kind: "list", caption, rows: [[text, value]] }.
+function drawCardPng(canvas, model, C, fam, pixel) {
+  const { title, badge, tiles, sections } = model;
   const S = pixel
     ? { title: 13, badge: 9, label: 9, value: 14, cap: 9, bar: 9, song: 9, lw: 40, vw: 72 }
     : { title: 15, badge: 12, label: 12, value: 22, cap: 12, bar: 12, song: 13, lw: 34, vw: 56 };
@@ -103,8 +107,8 @@ function drawCardPng(canvas, cur, C, fam, pixel) {
   const rowH = Math.round(S.bar * 1.5), pitch = rowH + 6;
   const songH = 14 + Math.round(S.song * 1.4);
   const capH = Math.round(S.cap * 1.4);
-  const nBars = stats.bars.length, nSongs = stats.topSongs.length;
-  const cardH = 16 + 24 + 12 + tileH + 16 + capH + 8 + nBars * pitch + 10 + capH + 4 + nSongs * songH + 16;
+  const sectionH = (sec, i) => capH + (sec.kind === "bars" ? 8 + sec.rows.length * pitch + 10 : 4 + sec.rows.length * songH + (i < sections.length - 1 ? 10 : 0)); // lists get a gap only when another section follows
+  const cardH = 16 + 24 + 12 + (tiles.length ? tileH + 16 : 0) + sections.reduce((n, sec, i) => n + sectionH(sec, i), 0) + 16;
   const W = CW + PAD * 2, H = TITLE_H + PAD + cardH + FOOT;
 
   canvas.width = W * SCALE;
@@ -112,11 +116,12 @@ function drawCardPng(canvas, cur, C, fam, pixel) {
   const ctx = canvas.getContext("2d");
   ctx.scale(SCALE, SCALE);
   ctx.textBaseline = "middle";
+  const setFont = (wt, size) => { ctx.font = font(wt, size); ctx.letterSpacing = (size * TRACK) + "px"; };
 
   paintBackdrop(ctx, W, H, C.bg, C.s1);
 
   // title: "Neo Cards" in Rubik, in the theme's accent colour
-  ctx.font = `500 22px ${TITLE_FAM}`;
+  ctx.font = `${TITLE_WEIGHT} 22px ${TITLE_FAM}`; ctx.letterSpacing = (22 * TRACK) + "px";
   ctx.fillStyle = C.ac; ctx.textAlign = "center";
   ctx.fillText("Neo Cards", W / 2, PAD + 14);
   ctx.textAlign = "left";
@@ -129,101 +134,112 @@ function drawCardPng(canvas, cur, C, fam, pixel) {
   const x0 = PAD + IX;
   let y = PAD + 16;
 
-  // header: title and rank badge
-  ctx.font = font(400, S.badge);
-  const badge = `#${stats.rank} by plays`;
-  const bw = ctx.measureText(badge).width + 20, bh = S.badge + 10;
-  rr(ctx, x0 + IW - bw, y + (24 - bh) / 2, bw, bh, 8);
-  ctx.fillStyle = C.acbg; ctx.fill();
-  ctx.fillStyle = C.ac; ctx.textAlign = "center";
-  ctx.fillText(badge, x0 + IW - bw / 2, y + 12);
-  ctx.textAlign = "left";
-  ctx.font = font(500, S.title);
+  // header: title and (optional) badge
+  let bw = 0;
+  if (badge) {
+    setFont(400, S.badge);
+    bw = ctx.measureText(badge).width + 20;
+    const bh = S.badge + 10;
+    rr(ctx, x0 + IW - bw, y + (24 - bh) / 2, bw, bh, 8);
+    ctx.fillStyle = C.acbg; ctx.fill();
+    ctx.fillStyle = C.ac; ctx.textAlign = "center";
+    ctx.fillText(badge, x0 + IW - bw / 2, y + 12);
+    ctx.textAlign = "left";
+  }
+  setFont(500, S.title);
   ctx.fillStyle = C.tx;
-  ctx.fillText(fit(ctx, `${stats.artist}, ${year === "all" ? "all time" : year}`, IW - bw - 8), x0, y + 12);
+  ctx.fillText(fit(ctx, title, IW - (badge ? bw + 8 : 0)), x0, y + 12);
   y += 24 + 12;
 
   // stat tiles
-  const tw = (IW - 8) / 2;
-  [["Plays", fmt(stats.plays)], ["Minutes", fmt(stats.minutes)]].forEach(([label, value], i) => {
-    const tx = x0 + i * (tw + 8);
-    rr(ctx, tx, y, tw, tileH, 8);
-    ctx.fillStyle = C.s1; ctx.fill();
-    ctx.fillStyle = C.tx2; ctx.font = font(400, S.label);
-    ctx.fillText(label, tx + 12, y + 10 + labelH / 2);
-    ctx.fillStyle = C.tx; ctx.font = font(500, S.value);
-    ctx.fillText(value, tx + 12, y + 10 + labelH + 2 + valueH / 2);
-  });
-  y += tileH + 16;
+  if (tiles.length) {
+    const tw = (IW - 8 * (tiles.length - 1)) / tiles.length;
+    tiles.forEach(([label, value], i) => {
+      const tx = x0 + i * (tw + 8);
+      rr(ctx, tx, y, tw, tileH, 8);
+      ctx.fillStyle = C.s1; ctx.fill();
+      ctx.fillStyle = C.tx2; setFont(400, S.label);
+      ctx.fillText(label, tx + 12, y + 10 + labelH / 2);
+      ctx.fillStyle = C.tx; setFont(500, S.value);
+      ctx.fillText(value, tx + 12, y + 10 + labelH + 2 + valueH / 2);
+    });
+    y += tileH + 16;
+  }
 
-  // bars
-  ctx.fillStyle = C.tx2; ctx.font = font(400, S.cap);
-  ctx.fillText(`Minutes per ${year === "all" ? "year" : "month"}`, x0, y + capH / 2);
-  y += capH + 8;
-  const trackX = x0 + S.lw + 8, trackW = IW - S.lw - 8 - 8 - S.vw;
-  const max = Math.max(...stats.bars.map((b) => b.minutes), 1);
-  stats.bars.forEach((b) => {
-    const cy = y + rowH / 2;
-    ctx.font = font(400, S.bar); ctx.fillStyle = C.tx2;
-    ctx.fillText(b.label, x0, cy);
-    rr(ctx, trackX, cy - 5, trackW, 10, 4);
-    ctx.fillStyle = C.s1; ctx.fill();
-    const fw = (b.minutes / max) * trackW;
-    if (fw > 0.2) { rr(ctx, trackX, cy - 5, fw, 10, 4); ctx.fillStyle = C.ac; ctx.fill(); }
-    ctx.font = font(500, S.bar); ctx.fillStyle = C.tx; ctx.textAlign = "right";
-    ctx.fillText(fmt(b.minutes), x0 + IW, cy);
-    ctx.textAlign = "left";
-    y += pitch;
-  });
-  y += 10;
+  sections.forEach((sec, i) => {
+    ctx.fillStyle = C.tx2; setFont(400, S.cap);
+    ctx.fillText(sec.caption, x0, y + capH / 2);
 
-  // top songs
-  ctx.fillStyle = C.tx2; ctx.font = font(400, S.cap);
-  ctx.fillText("Top songs by plays", x0, y + capH / 2);
-  y += capH + 4;
-  stats.topSongs.forEach(([title, plays]) => {
-    ctx.strokeStyle = C.bd; ctx.lineWidth = 0.5;
-    ctx.beginPath(); ctx.moveTo(x0, y); ctx.lineTo(x0 + IW, y); ctx.stroke();
-    ctx.font = font(500, S.song);
-    const pw = ctx.measureText(fmt(plays)).width;
-    ctx.fillStyle = C.tx; ctx.textAlign = "right";
-    ctx.fillText(fmt(plays), x0 + IW, y + songH / 2);
-    ctx.textAlign = "left";
-    ctx.font = font(400, S.song);
-    ctx.fillText(fit(ctx, title, IW - pw - 10), x0, y + songH / 2);
-    y += songH;
+    if (sec.kind === "bars") {
+      y += capH + 8;
+      const trackX = x0 + S.lw + 8, trackW = IW - S.lw - 8 - 8 - S.vw;
+      const max = Math.max(...sec.rows.map((r) => r[1]), 1);
+      sec.rows.forEach(([label, value]) => {
+        const cy = y + rowH / 2;
+        setFont(400, S.bar); ctx.fillStyle = C.tx2;
+        ctx.fillText(label, x0, cy);
+        rr(ctx, trackX, cy - 5, trackW, 10, 4);
+        ctx.fillStyle = C.s1; ctx.fill();
+        const fw = (value / max) * trackW;
+        if (fw > 0.2) { rr(ctx, trackX, cy - 5, fw, 10, 4); ctx.fillStyle = C.ac; ctx.fill(); }
+        setFont(500, S.bar); ctx.fillStyle = C.tx; ctx.textAlign = "right";
+        ctx.fillText(fmt(value), x0 + IW, cy);
+        ctx.textAlign = "left";
+        y += pitch;
+      });
+      y += 10;
+    } else {
+      y += capH + 4;
+      sec.rows.forEach(([text, value]) => {
+        ctx.strokeStyle = C.bd; ctx.lineWidth = 0.5;
+        ctx.beginPath(); ctx.moveTo(x0, y); ctx.lineTo(x0 + IW, y); ctx.stroke();
+        let pw = 0;
+        if (value) {
+          setFont(500, S.song);
+          pw = ctx.measureText(value).width + 10;
+          ctx.fillStyle = C.tx; ctx.textAlign = "right";
+          ctx.fillText(value, x0 + IW, y + songH / 2);
+          ctx.textAlign = "left";
+        }
+        setFont(400, S.song);
+        ctx.fillStyle = C.tx;
+        ctx.fillText(fit(ctx, text, IW - pw), x0, y + songH / 2);
+        y += songH;
+      });
+      if (i < sections.length - 1) y += 10;
+    }
   });
 
   // watermark (PNG only)
   ctx.globalAlpha = 0.5;
   ctx.fillStyle = C.tx; ctx.textAlign = "center";
-  ctx.font = font(400, pixel ? 8 : 11);
+  setFont(400, pixel ? 8 : 11);
   ctx.fillText(PNG_URL, W / 2, PAD + cardH + FOOT / 2);
   ctx.globalAlpha = 1;
   ctx.textAlign = "left";
 }
 
 async function downloadPng() {
-  if (!current) return;
+  const shown = getShownCard();
+  if (!shown) return;
   const f = FONTS.find((x) => x.id === fontId) || FONTS[0];
   try {
     await ensureRubik();
     await Promise.all([
       document.fonts.load(`400 14px ${f.css}`), document.fonts.load(`500 14px ${f.css}`),
-      document.fonts.load(`500 22px ${TITLE_FAM}`),
+      document.fonts.load(`${TITLE_WEIGHT} 22px ${TITLE_FAM}`),
     ]);
   } catch (e) { /* draw with whatever font is available */ }
   const cs = getComputedStyle(document.documentElement);
   const v = (n) => cs.getPropertyValue(n).trim();
   const C = { s1: v("--s1"), s2: v("--s2"), tx: v("--tx"), tx2: v("--tx2"), ac: v("--ac"), acbg: v("--acbg"), bd: v("--bd"), bg: v("--bg") };
   const canvas = document.createElement("canvas");
-  drawCardPng(canvas, current, C, f.css, fontId === "pressstart");
+  drawCardPng(canvas, shown.model, C, f.css, fontId === "pressstart");
   canvas.toBlob((blob) => {
     if (!blob) return;
-    const slug = current.stats.artist.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "artist";
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = `neo-card-${slug}-${current.year}.png`;
+    a.download = `neo-card-${shown.file}.png`;
     document.body.appendChild(a);
     a.click();
     a.remove();
