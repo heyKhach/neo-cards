@@ -12,27 +12,50 @@
   <div class="top">
     <h1 class="page-title">Neo Cards</h1>
     <div class="tools">
-    <button id="fontBtn" class="icon-btn" type="button" aria-label="Choose font"><b>Aa</b></button>
-    <button id="themeBtn" class="icon-btn" type="button" aria-label="Choose theme">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.8-.8 1.8-1.7 0-.5-.2-.9-.5-1.3-.3-.4-.5-.8-.5-1.3 0-1 .8-1.7 1.8-1.7H17a4 4 0 0 0 4-4C21 6.6 17 3 12 3z"/><circle cx="7.5" cy="11" r="1"/><circle cx="10.5" cy="7" r="1"/><circle cx="15" cy="7.5" r="1"/></svg>
-    </button>
-    <button id="tplBtn" class="icon-btn" type="button" aria-label="Choose template">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg>
-    </button>
+      <button id="menuBtn" class="icon-btn" type="button" aria-label="Menu" aria-haspopup="true" aria-expanded="false" aria-controls="menu">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="5" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="19" r="1.8"/></svg>
+      </button>
+      <nav id="menu" class="menu" aria-label="Menu">
+        <button id="cardToggleBtn" class="menu-item" type="button">
+          <svg class="menu-ico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h13l-3-3M17 17H4l3 3"/></svg><span id="cardToggleLabel">Recent stats</span>
+        </button>
+        <button id="fontBtn" class="menu-item" type="button"><b class="menu-ico">Aa</b>Font</button>
+        <button id="themeBtn" class="menu-item" type="button">
+          <svg class="menu-ico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.8-.8 1.8-1.7 0-.5-.2-.9-.5-1.3-.3-.4-.5-.8-.5-1.3 0-1 .8-1.7 1.8-1.7H17a4 4 0 0 0 4-4C21 6.6 17 3 12 3z"/><circle cx="7.5" cy="11" r="1"/><circle cx="10.5" cy="7" r="1"/><circle cx="15" cy="7.5" r="1"/></svg>Theme
+        </button>
+        <button id="tplBtn" class="menu-item" type="button">
+          <svg class="menu-ico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg>Templates
+        </button>
+      </nav>
     </div>
   </div>
-  <label class="upload">
-    <span id="uploadText">Choose your Spotify history file</span>
-    <input id="file" type="file" accept=".zip,.json" multiple>
-  </label>
-  <p class="note">Upload the .zip from Spotify’s extended streaming history, or its Streaming_History_Audio .json files. Your data stays in your browser. <a href="/guide">How do I get this file?</a></p>
+  <div class="source">
+    <label class="upload">
+      <span id="uploadText">Choose your Spotify history file</span>
+      <input id="file" type="file" accept=".zip,.json" multiple>
+    </label>
+    <button id="connectBtn" class="connect-btn" type="button">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>
+      Connect
+    </button>
+  </div>
+  <p class="note">Upload the .zip from Spotify’s extended streaming history, or its Streaming_History_Audio .json files. Your data stays in your browser. <a href="/neo-cards/guide">How do I get this file?</a></p>
   <p class="error" id="error" hidden></p>
 
   <div class="controls" id="controls" hidden>
-    <select id="artist" aria-label="Artist"></select>
+    <div class="combo">
+      <input id="artist" type="text" role="combobox" aria-label="Artist" aria-autocomplete="list" aria-expanded="false" aria-controls="artistList" placeholder="Search artists" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+      <ul id="artistList" class="combo-list" role="listbox" hidden></ul>
+    </div>
     <select id="year" aria-label="Period"></select>
   </div>
   <div class="card" id="card" hidden></div>
+  <div class="controls" id="syncControls" hidden>
+    <select id="syncRange" aria-label="Period"></select>
+    <button id="syncRefresh" class="btn" type="button">Refresh</button>
+  </div>
+  <p class="note" id="syncMsg" hidden></p>
+  <div class="card" id="syncCard" hidden></div>
   <button id="downloadBtn" class="dl-btn" type="button" hidden>Download as PNG</button>
 </div>
 
@@ -66,11 +89,43 @@
   </div>
 </dialog>
 
+<dialog id="connectDialog" aria-labelledby="connectTitle">
+  <div class="dialog-body">
+    <div class="dialog-head">
+      <h2 id="connectTitle">Connect Spotify</h2>
+      <button id="connectClose" class="icon-btn" type="button" aria-label="Close">&times;</button>
+    </div>
+    <p class="note">One Premium account is needed to create an app for up to 5 people. Make your own app, then paste its Client ID below.</p>
+    <ol class="connect-steps">
+      <li>Go to the <a href="https://developer.spotify.com/dashboard" target="_blank" rel="noopener">Spotify developer dashboard</a> and create an app.</li>
+      <li>Add this as its Redirect URI (it has to match exactly):
+        <div class="uri-box"><code id="redirectUri"></code><button id="copyUri" class="btn" type="button">Copy</button></div>
+      </li>
+      <li>Tick “Web API”, save, then copy the app’s Client ID into the box below.</li>
+      <li>Sharing it? Add each person under User Management in the app’s settings.</li>
+    </ol>
+    <label class="field-label" for="clientId">Client ID</label>
+    <input id="clientId" class="text-input" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Paste your Client ID">
+    <p id="connectError" class="error" role="alert" hidden></p>
+    <p id="connectStatus" class="note" role="status" hidden></p>
+    <div class="btn-row">
+      <button id="connectLogin" class="btn" type="button">Log in</button>
+      <button id="connectLogout" class="btn ghost" type="button" hidden>Log out</button>
+      <button id="connectRemove" class="btn ghost" type="button" hidden>Remove</button>
+    </div>
+    <p class="note">Your Client ID and login stay in this browser. Logging in reloads this page, so log in before importing your file.</p>
+  </div>
+</dialog>
+
 <script src="the-spooky-part/popups.js"></script>
 <script src="the-spooky-part/data-source.js"></script>
 <script src="the-spooky-part/stats.js"></script>
 <script src="the-spooky-part/customize.js"></script>
 <script src="the-spooky-part/export.js"></script>
+<script src="the-spooky-part/search.js"></script>
+<script src="the-spooky-part/spotify.js"></script>
+<script src="the-spooky-part/connect.js"></script>
+<script src="the-spooky-part/recent.js"></script>
 <script src="the-spooky-part/card.js"></script>
 </body>
 </html>
