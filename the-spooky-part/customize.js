@@ -68,7 +68,7 @@ const FONTS = [
   { id: "poppins", name: "Poppins", css: '"Poppins", ' + SYSTEM_STACK, google: "Poppins:wght@400;500" },
   { id: "merriweather", name: "Merriweather", css: '"Merriweather", Georgia, serif', google: "Merriweather:wght@400;700" },
   { id: "robotomono", name: "Roboto Mono", css: '"Roboto Mono", ui-monospace, Menlo, monospace', google: "Roboto+Mono:wght@400;500" },
-  { id: "rubik", name: "Rubik", css: '"Rubik", ' + SYSTEM_STACK, google: "Rubik:wght@400;500" },
+  { id: "rubik", name: "Rubik", css: '"Rubik", ' + SYSTEM_STACK, google: "Rubik:wght@400;500;600" },
   { id: "sourgummy", name: "Sour Gummy", css: '"Sour Gummy", ' + SYSTEM_STACK, google: "Sour+Gummy" },
   { id: "spacemono", name: "Space Mono", css: '"Space Mono", ui-monospace, Menlo, monospace', google: "Space+Mono:wght@400;700" },
   { id: "craftygirls", name: "Crafty Girls", css: '"Crafty Girls", cursive, ' + SYSTEM_STACK, google: "Crafty+Girls" },
